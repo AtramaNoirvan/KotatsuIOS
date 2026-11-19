@@ -14,8 +14,8 @@ public actor NovelTranslator {
 	public static let langOff = "off"
 	private static let firstBatchMaxChars = 1200
 	private static let firstBatchMaxParagraphs = 8
-	private static let maxCharsPerBatch = 3800
-	private static let maxParagraphsPerBatch = 60
+	public static let maxCharsPerBatch = 3800
+	public static let maxParagraphsPerBatch = 60
 
 	private static let endpoints: [(String, String)] = [
 		("https://translate.googleapis.com/translate_a/single", "gtx"),
