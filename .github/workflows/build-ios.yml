@@ -5,11 +5,26 @@ on:
     branches: [ main, master ]
     tags: [ 'v*' ]
   workflow_dispatch:
+    inputs:
+      runner:
+        description: "macOS runner pool"
+        required: true
+        default: "macos-15-intel"
+        type: choice
+        options:
+          - macos-15-intel
+          - macos-15
+          - macos-latest
+
+concurrency:
+  group: build-ios-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build-ipa:
     name: Test & Build Unsigned IPA
-    runs-on: macos-latest
+    runs-on: ${{ inputs.runner || 'macos-15-intel' }}
+    timeout-minutes: 30
 
     steps:
       - name: Checkout repository
@@ -23,6 +38,8 @@ jobs:
           xcodebuild -version
 
       - name: Install XcodeGen
+        env:
+          HOMEBREW_NO_AUTO_UPDATE: 1
         run: brew install xcodegen
 
       - name: Generate Xcode project
@@ -37,11 +54,18 @@ jobs:
           import json, sys
           data = json.load(sys.stdin)
           for runtime, devs in sorted(data.get("devices", {}).items(), reverse=True):
+              if "iOS" not in runtime:
+                  continue
               for d in devs:
                   if d.get("isAvailable"):
                       print(d["udid"])
                       sys.exit(0)
           ')
+          if [ -z "$SIM_ID" ]; then
+            echo "No available iOS Simulator device found"
+            xcrun simctl list devices available
+            exit 1
+          fi
           echo "Testing on simulator UDID: $SIM_ID"
           xcodebuild test \
             -project KotatsuIOS.xcodeproj \
