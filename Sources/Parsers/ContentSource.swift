@@ -20,8 +20,22 @@ public enum SourceRegistry {
 		switch id {
 		case .komiku:
 			return KomikuSource()
+		case .shinigami:
+			return ShinigamiSource()
+		case .kiryuu:
+			return NatsuWpSource(sourceID: .kiryuu)
+		case .natsu:
+			return NatsuWpSource(sourceID: .natsu)
+		case .ikiru:
+			return IkiruSource()
+		case .komikCast:
+			return KomikCastSource()
 		case .doujinDesu:
 			return DoujinDesuSource()
+		case .dojing:
+			return MangaReaderSource(sourceID: .dojing)
+		case .sekteDoujin:
+			return MangaReaderSource(sourceID: .sekteDoujin)
 		case .mangaDex:
 			return MangaDexSource()
 		case .novelBin:

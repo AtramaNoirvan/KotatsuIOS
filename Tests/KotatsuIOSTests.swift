@@ -154,4 +154,90 @@ final class KotatsuIOSTests: XCTestCase {
 		XCTAssertEqual(ReadingStreakEngine.computeCurrentStreak(activeDateKeys: active, today: today, calendar: cal), 2)
 		XCTAssertEqual(ReadingStreakEngine.computeLongestStreak(activeDateKeys: active, calendar: cal), 2)
 	}
+
+	func testAllCatalogSourcesRegistered() {
+		for src in CatalogSourceID.allCases {
+			XCTAssertEqual(SourceRegistry.source(named: src.rawValue)?.sourceID, src)
+		}
+		XCTAssertNotNil(SourceRegistry.source(named: "SHINIGAMI"))
+		XCTAssertNotNil(SourceRegistry.source(named: "KIRYUU"))
+	}
+
+	func testShinigamiJsonAndUidParity() {
+		let uuid = "1eb59f95-f4e4-4488-a935-79dbaa27ddb8"
+		let listJson = """
+		{
+		  "retcode": 0,
+		  "data": [
+		    {
+		      "manga_id": "\(uuid)",
+		      "title": "I'm Really Not The Demon God's Lackey",
+		      "cover_image_url": "https://cdn.shinigami.gg/cover.jpg",
+		      "status": 1,
+		      "taxonomy": {
+		        "Author": [{"name": "Ciweimao"}],
+		        "Genre": [{"slug": "supernatural", "name": "Supernatural"}]
+		      }
+		    }
+		  ]
+		}
+		"""
+		let items = ShinigamiSource.parseListJSON(listJson)
+		XCTAssertEqual(items.count, 1)
+		XCTAssertEqual(items[0].id, KotatsuUid.generate(sourceName: "SHINIGAMI", url: uuid))
+		XCTAssertEqual(items[0].url, "/manga/detail/\(uuid)")
+		XCTAssertEqual(items[0].authors, ["Ciweimao"])
+		XCTAssertEqual(items[0].tags, ["Supernatural"])
+		XCTAssertEqual(items[0].state, "ONGOING")
+
+		let chJson = """
+		{
+		  "data": [
+		    {"chapter_id": "ch-1", "chapter_number": 1, "chapter_title": ""},
+		    {"chapter_id": "ch-2", "chapter_number": 2.5, "chapter_title": "Side Story"}
+		  ],
+		  "meta": {"has_next": false, "next_cursor": ""}
+		}
+		"""
+		var seen = Set<Int64>()
+		let parsedCh = ShinigamiSource.parseChaptersJSON(chJson, seenIds: &seen)
+		XCTAssertEqual(parsedCh.chapters.count, 2)
+		XCTAssertEqual(parsedCh.chapters[0].title, "Chapter 1")
+		XCTAssertEqual(parsedCh.chapters[1].title, "Side Story")
+		XCTAssertNil(parsedCh.nextCursor)
+
+		let pagesJson = """
+		{
+		  "data": {
+		    "base_url": "https://cdn.shinigami.gg/",
+		    "chapter": {
+		      "path": "/chapter/abc/",
+		      "data": ["01.jpg", "/02.jpg"]
+		    }
+		  }
+		}
+		"""
+		XCTAssertEqual(
+			ShinigamiSource.parsePagesJSON(pagesJson),
+			["https://cdn.shinigami.gg/chapter/abc/01.jpg", "https://cdn.shinigami.gg/chapter/abc/02.jpg"]
+		)
+	}
+
+	func testKomikCastAndMangaReaderExtractors() {
+		let inertiaHtml = """
+		<html><head></head><body>
+		<script data-page="app" type="application/json">{"component":"Explore","props":{"pages":["/i/a.webp","https://cdn.example/b.webp"]}}</script>
+		</body></html>
+		"""
+		let props = KomikCastSource.extractInertiaProps(from: inertiaHtml)
+		XCTAssertEqual(props?["pages"] as? [String], ["/i/a.webp", "https://cdn.example/b.webp"])
+
+		let tsHtml = """
+		<script>ts_reader.run({"post_id":12,"sources":[{"source":"Server {1}","images":["https://img.test/1.jpg","https://img.test/2.jpg"]}]});</script>
+		"""
+		XCTAssertEqual(
+			MangaReaderSource.extractTsReaderImages(from: tsHtml),
+			["https://img.test/1.jpg", "https://img.test/2.jpg"]
+		)
+	}
 }

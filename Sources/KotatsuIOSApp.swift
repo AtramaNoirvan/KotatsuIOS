@@ -146,12 +146,16 @@ private struct HistoryTabView: View {
 								TitleDetailView(initialManga: item.manga)
 							} label: {
 								HStack(spacing: 12) {
-									RemoteImageView(
-										urlString: item.manga.coverUrl,
-										headers: item.manga.sourceID?.defaultHeaders ?? [:]
-									)
-									.frame(width: 54, height: 76)
-									.clipShape(RoundedRectangle(cornerRadius: 8))
+									Color.clear
+										.frame(width: 54, height: 76)
+										.overlay {
+											RemoteImageView(
+												urlString: item.manga.coverUrl,
+												headers: item.manga.sourceID?.defaultHeaders ?? [:]
+											)
+										}
+										.clipped()
+										.clipShape(RoundedRectangle(cornerRadius: 8))
 
 									VStack(alignment: .leading, spacing: 4) {
 										Text(item.manga.title)
@@ -189,7 +193,7 @@ private struct FavouritesTabView: View {
 	@EnvironmentObject private var store: LibraryStore
 
 	private let columns = [
-		GridItem(.adaptive(minimum: 112), spacing: 12),
+		GridItem(.adaptive(minimum: 145), spacing: 12),
 	]
 
 	var body: some View {
@@ -237,19 +241,25 @@ public struct TitlePosterCard: View {
 
 	public var body: some View {
 		VStack(alignment: .leading, spacing: 6) {
-			RemoteImageView(
-				urlString: manga.coverUrl,
-				headers: manga.sourceID?.defaultHeaders ?? [:]
-			)
-			.frame(height: 168)
-			.frame(maxWidth: .infinity)
-			.clipShape(RoundedRectangle(cornerRadius: 10))
+			Color.clear
+				.aspectRatio(0.7, contentMode: .fit)
+				.overlay {
+					RemoteImageView(
+						urlString: manga.coverUrl,
+						headers: manga.sourceID?.defaultHeaders ?? [:]
+					)
+				}
+				.clipped()
+				.clipShape(RoundedRectangle(cornerRadius: 10))
+				.contentShape(RoundedRectangle(cornerRadius: 10))
 
 			Text(manga.title)
 				.font(.caption.weight(.semibold))
 				.foregroundStyle(.primary)
 				.lineLimit(2)
 				.multilineTextAlignment(.leading)
+				.frame(maxWidth: .infinity, alignment: .leading)
 		}
+		.frame(minWidth: 0, maxWidth: .infinity, alignment: .topLeading)
 	}
 }

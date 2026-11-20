@@ -23,7 +23,7 @@ targets:
       properties:
         CFBundleDisplayName: Kotatsu
         CFBundleShortVersionString: "9.5.3"
-        CFBundleVersion: "1037"
+        CFBundleVersion: "1038"
         UILaunchScreen: {}
         UIApplicationSceneManifest:
           UIApplicationSupportsMultipleScenes: false

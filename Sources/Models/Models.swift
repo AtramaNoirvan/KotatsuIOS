@@ -40,7 +40,14 @@ public enum ContentMode: String, CaseIterable, Identifiable, Codable {
 public enum CatalogSourceID: String, CaseIterable, Identifiable, Codable {
 	// Comic sources
 	case komiku = "KOMIKU"
+	case shinigami = "SHINIGAMI"
+	case kiryuu = "KIRYUU"
+	case natsu = "NATSU"
+	case ikiru = "IKIRU"
+	case komikCast = "KOMIKCAST"
 	case doujinDesu = "DOUJINDESU"
+	case dojing = "DOJING"
+	case sekteDoujin = "SEKTEDOUJIN"
 	case mangaDex = "MANGADEX"
 
 	// Novel sources (matching Android v9.5.3)
@@ -57,7 +64,14 @@ public enum CatalogSourceID: String, CaseIterable, Identifiable, Codable {
 	public var displayName: String {
 		switch self {
 		case .komiku: return "Komiku"
+		case .shinigami: return "Shinigami"
+		case .kiryuu: return "Kiryuu"
+		case .natsu: return "Natsu"
+		case .ikiru: return "Ikiru"
+		case .komikCast: return "KomikCast"
 		case .doujinDesu: return "DoujinDesu"
+		case .dojing: return "Dojing"
+		case .sekteDoujin: return "SekteDoujin"
 		case .mangaDex: return "MangaDex"
 		case .novelBin: return "NovelBin"
 		case .freeWebNovel: return "FreeWebNovel"
@@ -71,7 +85,8 @@ public enum CatalogSourceID: String, CaseIterable, Identifiable, Codable {
 
 	public var languageBadge: String {
 		switch self {
-		case .komiku, .doujinDesu, .indoWebNovel, .novelRingan:
+		case .komiku, .shinigami, .kiryuu, .natsu, .ikiru, .komikCast,
+				.doujinDesu, .dojing, .sekteDoujin, .indoWebNovel, .novelRingan:
 			return "ID"
 		case .mangaDex:
 			return "ID/EN"
@@ -82,7 +97,8 @@ public enum CatalogSourceID: String, CaseIterable, Identifiable, Codable {
 
 	public var isNovel: Bool {
 		switch self {
-		case .komiku, .doujinDesu, .mangaDex:
+		case .komiku, .shinigami, .kiryuu, .natsu, .ikiru, .komikCast,
+				.doujinDesu, .dojing, .sekteDoujin, .mangaDex:
 			return false
 		case .novelBin, .freeWebNovel, .libRead, .novelFull, .allNovelFull, .indoWebNovel, .novelRingan:
 			return true
@@ -90,7 +106,12 @@ public enum CatalogSourceID: String, CaseIterable, Identifiable, Codable {
 	}
 
 	public var isNsfw: Bool {
-		self == .doujinDesu
+		switch self {
+		case .doujinDesu, .dojing, .sekteDoujin:
+			return true
+		default:
+			return false
+		}
 	}
 
 	public var isForeignLanguage: Bool {
@@ -100,7 +121,14 @@ public enum CatalogSourceID: String, CaseIterable, Identifiable, Codable {
 	public var defaultDomain: String {
 		switch self {
 		case .komiku: return "komiku.org"
+		case .shinigami: return "s1.shinigami.mx"
+		case .kiryuu: return "v7.kiryuu.to"
+		case .natsu: return "natsu.one"
+		case .ikiru: return "11.ikiru.wtf"
+		case .komikCast: return "komikcast.gg"
 		case .doujinDesu: return "doujin.desu.xxx"
+		case .dojing: return "dojing.net"
+		case .sekteDoujin: return "sektedoujin.cc"
 		case .mangaDex: return "api.mangadex.org"
 		case .novelBin: return "novelbin.com"
 		case .freeWebNovel: return "freewebnovel.com"

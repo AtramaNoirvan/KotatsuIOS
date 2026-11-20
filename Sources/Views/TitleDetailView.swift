@@ -34,12 +34,16 @@ public struct TitleDetailView: View {
 		ScrollView {
 			VStack(alignment: .leading, spacing: 16) {
 				HStack(alignment: .top, spacing: 14) {
-					RemoteImageView(
-						urlString: manga.coverUrl,
-						headers: manga.sourceID?.defaultHeaders ?? [:]
-					)
-					.frame(width: 112, height: 162)
-					.clipShape(RoundedRectangle(cornerRadius: 12))
+					Color.clear
+						.frame(width: 112, height: 162)
+						.overlay {
+							RemoteImageView(
+								urlString: manga.coverUrl,
+								headers: manga.sourceID?.defaultHeaders ?? [:]
+							)
+						}
+						.clipped()
+						.clipShape(RoundedRectangle(cornerRadius: 12))
 
 					VStack(alignment: .leading, spacing: 8) {
 						Text(manga.title)
@@ -136,14 +140,24 @@ public struct TitleDetailView: View {
 						.frame(maxWidth: .infinity)
 						.padding()
 				} else if let errorMessage, manga.chapters.isEmpty {
-					VStack(spacing: 8) {
+					VStack(spacing: 10) {
 						Text(errorMessage)
 							.font(.caption)
 							.foregroundStyle(.red)
-						Button("Coba Lagi") {
-							Task { await loadDetails() }
+							.multilineTextAlignment(.center)
+						HStack(spacing: 10) {
+							Button("Coba Lagi") {
+								Task { await loadDetails() }
+							}
+							.buttonStyle(.bordered)
+							if let webUrl = URL(string: manga.publicUrl),
+							   webUrl.scheme == "http" || webUrl.scheme == "https" {
+								Link(destination: webUrl) {
+									Label("Buka di Browser", systemImage: "safari")
+								}
+								.buttonStyle(.borderedProminent)
+							}
 						}
-						.buttonStyle(.bordered)
 					}
 					.frame(maxWidth: .infinity)
 					.padding()

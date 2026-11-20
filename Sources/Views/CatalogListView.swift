@@ -13,7 +13,7 @@ public struct CatalogListView: View {
 	@State private var errorMessage: String?
 
 	private let columns = [
-		GridItem(.adaptive(minimum: 112), spacing: 12),
+		GridItem(.adaptive(minimum: 145), spacing: 12),
 	]
 
 	public var body: some View {
